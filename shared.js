@@ -181,7 +181,7 @@
     text = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
     const fenced = text.match(/^```[a-z0-9_-]*\n([\s\S]*?)\n```$/i);
     if (fenced) text = fenced[1].trim();
-    text = text.replace(/^(?:译文|翻译结果|翻译|translation)\s*[:：]\s*/i, '').trim();
+    text = text.replace(/^(译文|翻译结果|翻译|translation)\s*[:：]\s*/i, '').trim();
     if (
       (text.charAt(0) === '"' && text.charAt(text.length - 1) === '"') ||
       (text.charAt(0) === '“' && text.charAt(text.length - 1) === '”')
