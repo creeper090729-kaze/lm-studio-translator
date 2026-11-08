@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LM Studio 划词翻译</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <strong>划词翻译</strong>
+    <span id="shortcut">Alt+Shift+T</span>
+  </header>
+  <p id="status" class="status">正在检测本机服务…</p>
+  <label class="check">
+    <input id="mouseup" type="checkbox">
+    <span>松开鼠标后翻译选区</span>
+  </label>
+  <label for="displayMode">结果显示</label>
+  <select id="displayMode">
+    <option value="tooltip">页面浮层</option>
+    <option value="sidebar">浏览器边栏</option>
+  </select>
+  <div class="row">
+    <button id="translate" type="button">翻译当前选区</button>
+  </div>
+  <div class="row">
+    <button id="openSide" type="button">打开边栏</button>
+    <button id="options" type="button">设置</button>
+  </div>
+  <p id="note" class="note"></p>
+  <script src="shared.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

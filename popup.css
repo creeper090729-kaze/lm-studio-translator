@@ -1,0 +1,89 @@
+:root {
+  color-scheme: light dark;
+  font: 13px/1.45 system-ui, "Segoe UI", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  background: Canvas;
+  color: CanvasText;
+}
+
+body {
+  width: 280px;
+  margin: 0;
+  padding: 12px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+header span {
+  color: color-mix(in srgb, CanvasText 62%, transparent);
+  font-size: 12px;
+}
+
+.status {
+  margin: 8px 0;
+  min-height: 2.8em;
+}
+
+.status.ok { color: light-dark(#0b6b3a, #86e0ad); }
+.status.bad { color: light-dark(#9d1c1c, #ffb4ab); }
+
+.check {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 8px 0 12px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+select {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 4px 0 0;
+  padding: 7px 8px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, CanvasText 18%, transparent);
+  background: Field;
+  color: FieldText;
+  font: inherit;
+}
+
+label[for="displayMode"] {
+  display: block;
+  margin-top: 4px;
+  color: color-mix(in srgb, CanvasText 72%, transparent);
+  font-size: 12px;
+}
+
+button {
+  flex: 1;
+  appearance: none;
+  border: 1px solid color-mix(in srgb, CanvasText 18%, transparent);
+  background: color-mix(in srgb, CanvasText 6%, Canvas);
+  color: inherit;
+  border-radius: 999px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+button:hover { background: color-mix(in srgb, CanvasText 12%, Canvas); }
+
+#translate {
+  background: AccentColor;
+  color: AccentColorText;
+  border-color: transparent;
+}
+
+.note {
+  min-height: 1.2em;
+  margin: 8px 0 0;
+  color: light-dark(#9d1c1c, #ffb4ab);
+}
