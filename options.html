@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LM Studio 划词翻译设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <h1>LM Studio 划词翻译</h1>
+    <p class="lead">文本只发到下面这个本机地址。不需要给 LM Studio 开 CORS，请求由插件后台发出。</p>
+
+    <section>
+      <h2>连接</h2>
+      <label for="baseUrl">服务器地址</label>
+      <input id="baseUrl" type="url" spellcheck="false" placeholder="http://127.0.0.1:1234/v1" autocomplete="off">
+
+      <label for="model">模型名</label>
+      <input id="model" type="text" list="modelList" spellcheck="false" placeholder="留空则用服务器返回的第一个模型" autocomplete="off">
+      <datalist id="modelList"></datalist>
+      <p class="hint">PLaMo Translate 不听「请翻译成中文」。模型名里同时有 plamo 和 translate 时，插件会改用它的专用格式，目标语言「简体中文」会变成 zh-hans。</p>
+
+      <label for="apiKey">API Token（没开认证就留空）</label>
+      <input id="apiKey" type="password" spellcheck="false" autocomplete="off">
+
+      <div class="row">
+        <button id="refresh" type="button">刷新模型</button>
+        <button id="probe" type="button">试译一句</button>
+      </div>
+      <p id="conn" class="msg" role="status"></p>
+    </section>
+
+    <section>
+      <h2>翻译</h2>
+      <label for="targetLang">目标语言</label>
+      <input id="targetLang" type="text" maxlength="40" placeholder="简体中文">
+
+      <div class="grid">
+        <div>
+          <label for="timeoutSec">超时（秒）</label>
+          <input id="timeoutSec" type="number" min="10" max="180" step="1">
+        </div>
+        <div>
+          <label for="maxChars">选区上限（字）</label>
+          <input id="maxChars" type="number" min="50" max="8000" step="50">
+        </div>
+        <div>
+          <label for="temperature">温度</label>
+          <input id="temperature" type="number" min="0" max="1.5" step="0.1">
+        </div>
+      </div>
+
+      <label class="check">
+        <input id="triggerOnMouseup" type="checkbox">
+        <span>松开鼠标后自动翻译。关掉后仍可用右键和快捷键。</span>
+      </label>
+
+      <label>结果显示</label>
+      <label class="check">
+        <input id="modeTooltip" type="radio" name="displayMode" value="tooltip" checked>
+        <span>页面浮层，跟在选区旁边</span>
+      </label>
+      <label class="check">
+        <input id="modeSidebar" type="radio" name="displayMode" value="sidebar">
+        <span>浏览器边栏，不挡正文</span>
+      </label>
+      <p class="hint">边栏在浏览器窗口右侧。右键和快捷键会顺便打开它；如果划词后没看见，到工具栏弹窗点「打开边栏」，开着即可一直收译文。</p>
+    </section>
+
+    <section>
+      <h2>术语表</h2>
+      <p class="hint">一行一条，<code>原文=译文</code>。井号开头是注释。最多 80 条，每边最多 80 字。</p>
+      <textarea id="glossary" spellcheck="false" placeholder="# 例&#10;アリス=爱丽丝&#10;ギルド=公会"></textarea>
+      <p id="glossaryCount" class="hint"></p>
+    </section>
+
+    <details>
+      <summary>高级：替换系统提示</summary>
+      <p class="hint">留空使用内置提示。填了就会整段替换，不当时译文会变差。</p>
+      <textarea id="systemPrompt" spellcheck="false"></textarea>
+    </details>
+
+    <div class="savebar">
+      <button id="save" type="button">保存</button>
+      <span id="saveMsg" role="status"></span>
+    </div>
+  </main>
+  <script src="shared.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
