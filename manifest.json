@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LM Studio 划词翻译",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "用本机 LM Studio 翻译选中文本。内容只发到本机，不改页面原文。",
   "minimum_chrome_version": "116",
   "permissions": ["storage", "contextMenus", "activeTab", "scripting", "sidePanel"],
@@ -14,12 +14,7 @@
   },
   "action": {
     "default_title": "LM Studio 划词翻译",
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
+    "default_popup": "popup.html"
   },
   "options_ui": {
     "page": "options.html",
@@ -27,11 +22,6 @@
   },
   "side_panel": {
     "default_path": "sidepanel.html"
-  },
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
   },
   "commands": {
     "translate-selection": {

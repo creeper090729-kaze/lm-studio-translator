@@ -1,0 +1,29 @@
+name: Commit icons
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/commit-icons.yml
+
+permissions:
+  contents: write
+
+jobs:
+  icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate icons
+        run: python3 scripts/write-icons.py
+      - name: Commit icons
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add icons/icon16.png icons/icon48.png icons/icon128.png
+          if git diff --cached --quiet; then
+            echo "icons already present"
+            exit 0
+          fi
+          git commit -m "Add extension icons"
+          git push

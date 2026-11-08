@@ -12,11 +12,11 @@
 git clone https://github.com/creeper090729-kaze/lm-studio-translator.git
 ```
 
-或解压发布用的压缩包，得到里面的 `lm-studio-translator` 文件夹。
+或下载仓库的 ZIP，解压后得到 `lm-studio-translator-main` 文件夹。不要用缺了 `icons` 的旧压缩包。
 
 1. 打开 Chrome，地址栏输入 `chrome://extensions`。
 2. 打开右上角「开发者模式」。
-3. 点「加载已解压的扩展程序」，选中含有 `manifest.json` 的那个文件夹。
+3. 点「加载已解压的扩展程序」，选中含有 `manifest.json` 的那个文件夹。文件夹里面还套着一层同名目录时，选里面那层。
 4. 刷新要看的网页。已经打开的页面要刷新一次，脚本才会挂上。
 
 更新插件文件后，在扩展页点刷新，再刷新网页。
