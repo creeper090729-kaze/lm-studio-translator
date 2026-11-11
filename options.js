@@ -2,7 +2,7 @@
 
 const fields = [
   'baseUrl', 'model', 'apiKey', 'targetLang', 'timeoutSec', 'maxChars',
-  'temperature', 'glossary', 'systemPrompt', 'triggerOnMouseup'
+  'temperature', 'glossary', 'systemPrompt'
 ];
 
 const connEl = document.getElementById('conn');
@@ -122,7 +122,6 @@ function read() {
     temperature: value('temperature'),
     glossary: value('glossary'),
     systemPrompt: value('systemPrompt'),
-    triggerOnMouseup: document.getElementById('triggerOnMouseup').checked,
     displayMode: document.getElementById('modeSidebar').checked ? 'sidebar' : 'tooltip'
   };
 }
