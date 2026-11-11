@@ -2,7 +2,6 @@
 
 const statusEl = document.getElementById('status');
 const noteEl = document.getElementById('note');
-const mouseupEl = document.getElementById('mouseup');
 const modeEl = document.getElementById('displayMode');
 const shortcutEl = document.getElementById('shortcut');
 
@@ -21,7 +20,6 @@ chrome.storage.local.get('settings', function (bag) {
   } catch (err) {
     noteEl.textContent = err.message || '设置无效';
   }
-  mouseupEl.checked = settings.triggerOnMouseup !== false;
   modeEl.value = settings.displayMode === 'sidebar' ? 'sidebar' : 'tooltip';
   chrome.runtime.sendMessage({ type: 'health' }, function (res) {
     if (chrome.runtime.lastError) {
@@ -35,12 +33,6 @@ chrome.storage.local.get('settings', function (bag) {
       return;
     }
     setStatus((res && res.error) || '离线', false);
-  });
-});
-
-mouseupEl.addEventListener('change', function () {
-  savePatch(function (next) { next.triggerOnMouseup = mouseupEl.checked; }, function () {
-    mouseupEl.checked = !mouseupEl.checked;
   });
 });
 
