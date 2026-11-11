@@ -19,7 +19,7 @@ git clone https://github.com/creeper090729-kaze/lm-studio-translator.git
 3. 点「加载已解压的扩展程序」，选中含有 `manifest.json` 的那个文件夹。文件夹里面还套着一层同名目录时，选里面那层。
 4. 刷新要看的网页。已经打开的页面要刷新一次，脚本才会挂上。
 
-更新插件文件后，在扩展页点刷新，再刷新网页。
+更新插件文件后，在扩展页点刷新，再刷新网页。工具栏图标出现「新」时，表示 GitHub 的 main 分支比本机版本高。打开插件弹窗可以进仓库下载。检查时只读取公开的 manifest.json，不上传翻译内容。
 
 ## LM Studio
 

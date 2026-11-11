@@ -88,3 +88,16 @@ button:hover { background: color-mix(in srgb, CanvasText 12%, Canvas); }
   margin: 8px 0 0;
   color: light-dark(#9d1c1c, #ffb4ab);
 }
+
+#update {
+  display: none;
+  width: 100%;
+  margin-top: 8px;
+  white-space: normal;
+  text-align: left;
+  background: light-dark(#fff7ed, #3a2a14);
+  color: light-dark(#9a3412, #fdba74);
+  border-color: light-dark(#fdba74, #9a3412);
+}
+
+#update.show { display: block; }

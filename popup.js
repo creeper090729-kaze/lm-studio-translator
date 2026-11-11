@@ -23,6 +23,7 @@ chrome.storage.local.get('settings', function (bag) {
   }
   modeEl.value = settings.displayMode === 'sidebar' ? 'sidebar' : 'tooltip';
   triggerEl.value = settings.triggerMode === 'select' ? 'select' : 'menu';
+  chrome.runtime.sendMessage({ type: 'check-update' }, showUpdate);
   chrome.runtime.sendMessage({ type: 'health' }, function (res) {
     if (chrome.runtime.lastError) {
       setStatus(chrome.runtime.lastError.message || '后台没有响应', false);
@@ -103,4 +104,15 @@ function setStatus(text, ok) {
   statusEl.textContent = text;
   statusEl.classList.toggle('ok', !!ok);
   statusEl.classList.toggle('bad', !ok);
+}
+
+function showUpdate(res) {
+  if (chrome.runtime.lastError || !res || !res.ok || !res.notice || !res.notice.newer) return;
+  const button = document.getElementById('update');
+  button.hidden = false;
+  button.classList.add('show');
+  button.textContent = 'GitHub 上有 ' + res.notice.remote + '，点此打开仓库下载';
+  button.onclick = function () {
+    chrome.tabs.create({ url: res.notice.url || LMShared.UPDATE_PAGE_URL });
+  };
 }
