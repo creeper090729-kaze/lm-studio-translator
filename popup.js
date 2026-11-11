@@ -3,6 +3,7 @@
 const statusEl = document.getElementById('status');
 const noteEl = document.getElementById('note');
 const modeEl = document.getElementById('displayMode');
+const triggerEl = document.getElementById('triggerMode');
 const shortcutEl = document.getElementById('shortcut');
 
 let settings = Object.assign({}, LMShared.DEFAULTS);
@@ -21,6 +22,7 @@ chrome.storage.local.get('settings', function (bag) {
     noteEl.textContent = err.message || '设置无效';
   }
   modeEl.value = settings.displayMode === 'sidebar' ? 'sidebar' : 'tooltip';
+  triggerEl.value = settings.triggerMode === 'select' ? 'select' : 'menu';
   chrome.runtime.sendMessage({ type: 'health' }, function (res) {
     if (chrome.runtime.lastError) {
       setStatus(chrome.runtime.lastError.message || '后台没有响应', false);
@@ -40,6 +42,13 @@ modeEl.addEventListener('change', function () {
   const chosen = modeEl.value === 'sidebar' ? 'sidebar' : 'tooltip';
   savePatch(function (next) { next.displayMode = chosen; }, function () {
     modeEl.value = settings.displayMode === 'sidebar' ? 'sidebar' : 'tooltip';
+  });
+});
+
+triggerEl.addEventListener('change', function () {
+  const chosen = triggerEl.value === 'select' ? 'select' : 'menu';
+  savePatch(function (next) { next.triggerMode = chosen; }, function () {
+    triggerEl.value = settings.triggerMode === 'select' ? 'select' : 'menu';
   });
 });
 

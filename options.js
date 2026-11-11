@@ -122,7 +122,8 @@ function read() {
     temperature: value('temperature'),
     glossary: value('glossary'),
     systemPrompt: value('systemPrompt'),
-    displayMode: document.getElementById('modeSidebar').checked ? 'sidebar' : 'tooltip'
+    displayMode: document.getElementById('modeSidebar').checked ? 'sidebar' : 'tooltip',
+    triggerMode: document.getElementById('triggerSelect').checked ? 'select' : 'menu'
   };
 }
 
@@ -135,6 +136,7 @@ function fill(settings) {
   });
   const sidebar = settings.displayMode === 'sidebar';
   document.getElementById(sidebar ? 'modeSidebar' : 'modeTooltip').checked = true;
+  document.getElementById(settings.triggerMode === 'select' ? 'triggerSelect' : 'triggerMenu').checked = true;
 }
 
 function value(id) {
