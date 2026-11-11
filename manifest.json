@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "LM Studio 划词翻译",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "用本机 LM Studio 翻译选中文本。内容只发到本机，不改页面原文。",
   "minimum_chrome_version": "116",
-  "permissions": ["storage", "contextMenus", "activeTab", "scripting", "sidePanel"],
+  "permissions": ["storage", "contextMenus", "activeTab", "scripting", "sidePanel", "alarms"],
   "host_permissions": [
     "http://127.0.0.1/*",
-    "http://localhost/*"
+    "http://localhost/*",
+    "https://api.github.com/*"
   ],
   "background": {
     "service_worker": "background.js"
