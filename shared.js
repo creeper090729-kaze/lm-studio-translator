@@ -237,9 +237,48 @@
     return 'LM Studio 返回 HTTP ' + status;
   }
 
+  function compareVersions(left, right) {
+    const a = versionParts(left);
+    const b = versionParts(right);
+    const len = Math.max(a.length, b.length);
+    for (let i = 0; i < len; i += 1) {
+      const av = a[i] || 0;
+      const bv = b[i] || 0;
+      if (av > bv) return 1;
+      if (av < bv) return -1;
+    }
+    return 0;
+  }
+
+  function versionParts(value) {
+    return String(value || '').trim().split('.').slice(0, 4).map(function (part) {
+      const n = Number(part);
+      if (!Number.isFinite(n) || n < 0) return 0;
+      return Math.floor(n);
+    });
+  }
+
+  function readRemoteVersion(text) {
+    const raw = String(text || '').replace(/^\uFEFF/, '').trim();
+    if (!raw) return '';
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.version === 'string') return parsed.version.trim();
+      if (parsed && parsed.content && parsed.encoding === 'base64') {
+        const decoded = atob(String(parsed.content).replace(/\s/g, ''));
+        const inner = JSON.parse(decoded);
+        if (inner && typeof inner.version === 'string') return inner.version.trim();
+      }
+    } catch (err) { /* Fall through to a plain version match. */ }
+    const match = raw.match(/"version"\s*:\s*"(\d+(?:\.\d+){0,3})"/);
+    return match ? match[1] : '';
+  }
+
   root.LMShared = {
     DEFAULTS: DEFAULTS,
     DEFAULT_SYSTEM: DEFAULT_SYSTEM,
+    UPDATE_MANIFEST_URL: 'https://api.github.com/repos/creeper090729-kaze/lm-studio-translator/contents/manifest.json?ref=main',
+    UPDATE_PAGE_URL: 'https://github.com/creeper090729-kaze/lm-studio-translator',
     normalizeSettings: normalizeSettings,
     parseGlossary: parseGlossary,
     buildMessages: buildMessages,
@@ -248,6 +287,8 @@
     buildPlamoPrompt: buildPlamoPrompt,
     cleanTranslation: cleanTranslation,
     readChoice: readChoice,
-    friendlyHttpError: friendlyHttpError
+    friendlyHttpError: friendlyHttpError,
+    compareVersions: compareVersions,
+    readRemoteVersion: readRemoteVersion
   };
 })(typeof self !== 'undefined' ? self : globalThis);

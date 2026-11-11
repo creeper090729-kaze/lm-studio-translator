@@ -41,6 +41,12 @@ chrome.runtime.onStartup.addListener(function () {
 
 setupMenus();
 enableSidePanel();
+chrome.alarms.create('update-check', { periodInMinutes: 360 });
+checkForUpdate(false);
+
+chrome.alarms.onAlarm.addListener(function (alarm) {
+  if (alarm && alarm.name === 'update-check') checkForUpdate(false);
+});
 
 chrome.contextMenus.onClicked.addListener(function (_info, tab) {
   if (!tab || !tab.id) return;
@@ -82,6 +88,7 @@ async function handle(msg) {
   if (msg.type === 'translate-active-tab') return translateActiveTab();
   if (msg.type === 'side-push') return pushSide(msg);
   if (msg.type === 'side-clear') return clearSide();
+  if (msg.type === 'check-update') return checkForUpdate(false);
   return { ok: false, error: '未知请求' };
 }
 
@@ -172,6 +179,69 @@ function clearSide() {
     await chrome.storage.session.set({ sideFeed: [] });
     return { ok: true };
   });
+}
+
+const UPDATE_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
+async function checkForUpdate() {
+  const current = chrome.runtime.getManifest().version;
+  const bag = await chrome.storage.local.get('updateNotice');
+  const cached = bag.updateNotice;
+  if (cached && cached.at && cached.current === current && Date.now() - cached.at < UPDATE_INTERVAL_MS) {
+    await paintUpdateBadge(cached, current);
+    return { ok: true, notice: publicNotice(cached, current) };
+  }
+  try {
+    const response = await fetch(LMShared.UPDATE_MANIFEST_URL, {
+      method: 'GET',
+      cache: 'no-store',
+      signal: AbortSignal.timeout(8000),
+      headers: {
+        Accept: 'application/vnd.github.raw',
+        'User-Agent': 'lm-studio-translator'
+      }
+    });
+    if (!response.ok) throw new Error('http ' + response.status);
+    const remote = LMShared.readRemoteVersion(await response.text());
+    if (!/^\d+(?:\.\d+){0,3}$/.test(remote)) throw new Error('bad version');
+    const notice = {
+      at: Date.now(),
+      current: current,
+      remote: remote,
+      newer: LMShared.compareVersions(remote, current) > 0,
+      url: LMShared.UPDATE_PAGE_URL
+    };
+    await chrome.storage.local.set({ updateNotice: notice });
+    await paintUpdateBadge(notice, current);
+    return { ok: true, notice: publicNotice(notice, current) };
+  } catch (err) {
+    if (cached && cached.current === current) {
+      await paintUpdateBadge(cached, current);
+      return { ok: true, notice: publicNotice(cached, current), stale: true };
+    }
+    await paintUpdateBadge(null, current);
+    return { ok: false, error: '没能检查更新' };
+  }
+}
+
+function publicNotice(notice, current) {
+  if (!notice || !notice.newer || notice.current !== current) return { newer: false, current: current };
+  return { newer: true, current: current, remote: notice.remote, url: notice.url };
+}
+
+async function paintUpdateBadge(notice, current) {
+  if (!chrome.action) return;
+  const show = notice && notice.newer && notice.current === current;
+  try {
+    if (show) {
+      await chrome.action.setBadgeBackgroundColor({ color: '#b45309' });
+      await chrome.action.setBadgeText({ text: '新' });
+      await chrome.action.setTitle({ title: '有新版本 ' + notice.remote + '，打开插件查看' });
+      return;
+    }
+    await chrome.action.setBadgeText({ text: '' });
+    await chrome.action.setTitle({ title: 'LM Studio 划词翻译' });
+  } catch (err) { /* Badge is optional. */ }
 }
 
 function setupMenus() {
