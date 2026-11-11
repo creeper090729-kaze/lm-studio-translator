@@ -258,6 +258,158 @@
     });
   }
 
+  function meaningfulText(value) {
+    return /[\p{L}]/u.test(String(value || ''));
+  }
+
+  function cleanPageText(value) {
+    return String(value || '')
+      .replace(/\u0000/g, '')
+      .replace(/[ \t]+\n/g, '\n')
+      .replace(/\n[ \t]+/g, '\n')
+      .replace(/[ \t]{2,}/g, ' ')
+      .trim();
+  }
+
+  function clampLimit(limit) {
+    const n = Number(limit);
+    if (!Number.isFinite(n)) return 2000;
+    return Math.min(8000, Math.max(1, Math.round(n)));
+  }
+
+  function lastBreakIndex(text) {
+    const minStrong = Math.floor(text.length * 0.4);
+    const minSoft = Math.floor(text.length * 0.6);
+    let strong = -1;
+    for (let i = text.length - 1; i >= 0; i--) {
+      const ch = text.charAt(i);
+      if (ch === '。' || ch === '！' || ch === '？' || ch === '!' || ch === '?' || ch === '\n' || ch === '；' || ch === ';') {
+        strong = i + 1;
+        break;
+      }
+    }
+    if (strong >= minStrong) return strong;
+    for (let i = text.length - 1; i >= 0; i--) {
+      const ch = text.charAt(i);
+      if (ch === '，' || ch === ',' || ch === '、' || ch === ' ') {
+        if (i + 1 >= minSoft) return i + 1;
+        break;
+      }
+    }
+    return -1;
+  }
+
+  function safeCut(str, max) {
+    if (max >= str.length) return str.length;
+    if (max <= 0) return 0;
+    const code = str.charCodeAt(max - 1);
+    if (code >= 0xD800 && code <= 0xDBFF) return max > 1 ? max - 1 : 0;
+    return max;
+  }
+
+  // One pull copies at most `limit` characters from the current text node.
+  // A <br> or a blank line in <pre> ends the paragraph. Later siblings stay unread.
+  function createPageWalker(root, options) {
+    const pre = !!(options && options.pre);
+    const skip = options && typeof options.skip === 'function' ? options.skip : function () { return false; };
+    const stack = [{ node: root, child: 0, textAt: 0, entered: false }];
+    let buf = '';
+
+    function take() {
+      const text = cleanPageText(buf);
+      buf = '';
+      return text;
+    }
+
+    function pull(limit) {
+      const max = clampLimit(limit);
+      while (stack.length) {
+        if (buf.length >= max) {
+          const ready = take();
+          if (ready) return ready;
+        }
+        const frame = stack[stack.length - 1];
+        const node = frame.node;
+        if (!node) {
+          stack.pop();
+          continue;
+        }
+        if (node.nodeType === 3) {
+          const raw = String(node.nodeValue || '').replace(/\u0000/g, '');
+          if (frame.textAt >= raw.length) {
+            stack.pop();
+            continue;
+          }
+          const room = max - buf.length;
+          if (room <= 0) {
+            const ready = take();
+            if (ready) return ready;
+            continue;
+          }
+          const rest = raw.slice(frame.textAt);
+          if (pre) {
+            const nl = rest.indexOf('\n');
+            if (nl !== -1 && nl <= room) {
+              buf += rest.slice(0, nl);
+              frame.textAt += nl + 1;
+              const ready = take();
+              if (ready) return ready;
+              continue;
+            }
+          }
+          if (rest.length <= room) {
+            buf += pre ? rest : rest.replace(/\s+/g, ' ');
+            frame.textAt = raw.length;
+            stack.pop();
+            continue;
+          }
+          const windowLen = safeCut(rest, room);
+          if (windowLen <= 0) {
+            frame.textAt += 1;
+            continue;
+          }
+          const window = rest.slice(0, windowLen);
+          const rel = lastBreakIndex(window);
+          const useRaw = rel > 0 ? rel : windowLen;
+          const slice = rest.slice(0, useRaw);
+          buf += pre ? slice : slice.replace(/\s+/g, ' ');
+          frame.textAt += useRaw;
+          const ready = take();
+          if (ready) return ready;
+          continue;
+        }
+        if (node.nodeType !== 1) {
+          stack.pop();
+          continue;
+        }
+        if (node !== root && skip(node)) {
+          stack.pop();
+          continue;
+        }
+        if (node.tagName === 'BR') {
+          stack.pop();
+          const ready = take();
+          if (ready) return ready;
+          continue;
+        }
+        if (!frame.entered) {
+          frame.entered = true;
+          frame.child = 0;
+        }
+        const children = node.childNodes || [];
+        if (frame.child >= children.length) {
+          stack.pop();
+          continue;
+        }
+        stack.push({ node: children[frame.child], child: 0, textAt: 0, entered: false });
+        frame.child += 1;
+      }
+      return take() || null;
+    }
+
+    return { pull: pull };
+  }
+
   function readRemoteVersion(text) {
     const raw = String(text || '').replace(/^\uFEFF/, '').trim();
     if (!raw) return '';
@@ -289,6 +441,9 @@
     readChoice: readChoice,
     friendlyHttpError: friendlyHttpError,
     compareVersions: compareVersions,
-    readRemoteVersion: readRemoteVersion
+    readRemoteVersion: readRemoteVersion,
+    meaningfulText: meaningfulText,
+    cleanPageText: cleanPageText,
+    createPageWalker: createPageWalker
   };
 })(typeof self !== 'undefined' ? self : globalThis);

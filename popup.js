@@ -82,6 +82,25 @@ document.getElementById('options').addEventListener('click', function () {
   chrome.runtime.openOptionsPage();
 });
 
+document.getElementById('page').addEventListener('click', function () {
+  noteEl.textContent = '';
+  chrome.runtime.sendMessage({ type: 'translate-page' }, function (res) {
+    if (chrome.runtime.lastError) {
+      noteEl.textContent = '请刷新网页后再试';
+      return;
+    }
+    if (!res || !res.ok) {
+      noteEl.textContent = (res && res.error) || '没能开始整页翻译';
+      return;
+    }
+    if (res.stopped) {
+      noteEl.textContent = '已停止整页翻译';
+      return;
+    }
+    window.close();
+  });
+});
+
 document.getElementById('translate').addEventListener('click', function () {
   noteEl.textContent = '';
   if (settings.displayMode === 'sidebar') {

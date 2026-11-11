@@ -48,8 +48,13 @@ chrome.alarms.onAlarm.addListener(function (alarm) {
   if (alarm && alarm.name === 'update-check') checkForUpdate(false);
 });
 
-chrome.contextMenus.onClicked.addListener(function (_info, tab) {
+chrome.contextMenus.onClicked.addListener(function (info, tab) {
   if (!tab || !tab.id) return;
+  if (info.menuItemId === 'lm-translate-page') {
+    translateTab(tab.id, tab.url || '', 'translate-page');
+    return;
+  }
+  if (!info.menuItemId || info.menuItemId !== 'lm-translate') return;
   if (displayMode === 'sidebar') openSidePanel(tab);
   translateTab(tab.id);
 });
@@ -86,6 +91,7 @@ async function handle(msg) {
     return { ok: true };
   }
   if (msg.type === 'translate-active-tab') return translateActiveTab();
+  if (msg.type === 'translate-page') return translatePageTab();
   if (msg.type === 'side-push') return pushSide(msg);
   if (msg.type === 'side-clear') return clearSide();
   if (msg.type === 'check-update') return checkForUpdate(false);
@@ -103,7 +109,7 @@ async function injectOpenTabs() {
     const tab = tabs[i];
     if (!tab.id) continue;
     try {
-      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] });
+      await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['shared.js', 'content.js'] });
     } catch (err) {
       /* Restricted pages and discarded tabs are skipped. */
     }
@@ -252,6 +258,11 @@ function setupMenus() {
         id: 'lm-translate',
         title: '用 LM Studio 翻译',
         contexts: ['selection']
+      });
+      await chrome.contextMenus.create({
+        id: 'lm-translate-page',
+        title: '整页翻译（按段落）',
+        contexts: ['page', 'selection', 'link']
       });
     })().finally(function () {
       menuTask = null;
@@ -540,7 +551,14 @@ async function translateActiveTab() {
   return translateTab(tab.id, tab.url || '');
 }
 
-async function translateTab(tabId, knownUrl) {
+async function translatePageTab() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tab = tabs && tabs[0];
+  if (!tab || !tab.id) return { ok: false, error: '没有可翻译的标签页' };
+  return translateTab(tab.id, tab.url || '', 'translate-page');
+}
+
+async function translateTab(tabId, knownUrl, messageType) {
   let url = knownUrl;
   if (url == null) {
     try {
@@ -557,13 +575,13 @@ async function translateTab(tabId, knownUrl) {
     await chrome.tabs.sendMessage(tabId, { type: 'ping' });
   } catch (err) {
     try {
-      await chrome.scripting.executeScript({ target: { tabId: tabId }, files: ['content.js'] });
+      await chrome.scripting.executeScript({ target: { tabId: tabId }, files: ['shared.js', 'content.js'] });
     } catch (injectErr) {
       return { ok: false, error: '无法在此页面使用。请换普通网页，或刷新后再试。' };
     }
   }
   try {
-    const response = await chrome.tabs.sendMessage(tabId, { type: 'translate-selection' });
+    const response = await chrome.tabs.sendMessage(tabId, { type: messageType || 'translate-selection' });
     return response || { ok: false, error: '页面没有响应' };
   } catch (err) {
     return { ok: false, error: '页面上的翻译脚本没挂上，请刷新网页后再试' };
