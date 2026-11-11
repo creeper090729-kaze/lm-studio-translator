@@ -51,6 +51,17 @@
         </div>
       </div>
 
+      <label>触发方式</label>
+      <label class="check">
+        <input id="triggerMenu" type="radio" name="triggerMode" value="menu" checked>
+        <span>右键菜单。每次都要点「用 LM Studio 翻译」</span>
+      </label>
+      <label class="check">
+        <input id="triggerSelect" type="radio" name="triggerMode" value="select">
+        <span>松开鼠标后自动翻译选区</span>
+      </label>
+      <p class="hint">右键模式不会因为框选文字就翻译。快捷键和弹窗里的「翻译当前选区」仍然可用。</p>
+
       <label>结果显示</label>
       <label class="check">
         <input id="modeTooltip" type="radio" name="displayMode" value="tooltip" checked>

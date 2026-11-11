@@ -56,7 +56,8 @@ select {
   font: inherit;
 }
 
-label[for="displayMode"] {
+label[for="displayMode"],
+label[for="triggerMode"] {
   display: block;
   margin-top: 4px;
   color: color-mix(in srgb, CanvasText 72%, transparent);

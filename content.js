@@ -72,7 +72,7 @@ function initPageTranslator() {
   panel.append(meta, body, actions);
   shadow.append(style, panel);
 
-  let mouseupOn = true;
+  let mouseupOn = false;
   let open = false;
   let seq = 0;
   let activeId = '';
@@ -86,14 +86,14 @@ function initPageTranslator() {
 
   chrome.storage.local.get('settings', function (bag) {
     const settings = bag && bag.settings;
-    mouseupOn = !settings || settings.triggerOnMouseup !== false;
+    mouseupOn = !!(settings && settings.triggerMode === 'select');
     displayMode = settings && settings.displayMode === 'sidebar' ? 'sidebar' : 'tooltip';
   });
   chrome.storage.onChanged.addListener(function (changes, area) {
     if (!live()) return;
     if (area !== 'local' || !changes.settings) return;
     const settings = changes.settings.newValue;
-    mouseupOn = !settings || settings.triggerOnMouseup !== false;
+    mouseupOn = !!(settings && settings.triggerMode === 'select');
     displayMode = settings && settings.displayMode === 'sidebar' ? 'sidebar' : 'tooltip';
     if (displayMode === 'sidebar' && open) closeTooltip();
   });

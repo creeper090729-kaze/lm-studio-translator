@@ -18,7 +18,7 @@
     temperature: 0.1,
     glossary: '',
     systemPrompt: '',
-    triggerOnMouseup: true,
+    triggerMode: 'menu',
     displayMode: 'tooltip'
   };
 
@@ -84,7 +84,7 @@
       temperature: Math.round(clamp(number(src.temperature, DEFAULTS.temperature), 0, 1.5) * 100) / 100,
       glossary: glossary,
       systemPrompt: systemPrompt,
-      triggerOnMouseup: src.triggerOnMouseup !== false,
+      triggerMode: src.triggerMode === 'select' ? 'select' : 'menu',
       displayMode: src.displayMode === 'sidebar' ? 'sidebar' : 'tooltip'
     };
   }
